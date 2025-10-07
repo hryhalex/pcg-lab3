@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Обработка изображений</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <header>
+      <h1>Обработка изображений</h1>
+    </header>
+
+    <main>
+      <section class="upload-section">
+        <input type="file" id="upload" accept="image/*" />
+      </section>
+
+      <section class="canvas-section">
+        <div class="canvas-wrapper">
+          <h3>Оригинальное изображение</h3>
+          <canvas id="originalCanvas"></canvas>
+        </div>
+        <div class="canvas-wrapper">
+          <h3>Обработанное изображение</h3>
+          <canvas id="processedCanvas"></canvas>
+        </div>
+      </section>
+
+      <section id="controls" class="controls-section">
+        <h2>Выберите метод обработки:</h2>
+
+        <div class="control-group">
+          <h3>Низкочастотные фильтры</h3>
+          <button class="btn" onclick="applyLowPassFilter()">
+            Средний фильтр
+          </button>
+        </div>
+
+        <div class="control-group">
+          <h3>Локальная пороговая обработка</h3>
+          <button class="btn" onclick="applyOtsuThreshold()">Метод Оцу</button>
+          <button class="btn" onclick="applyAdaptiveMeanThreshold()">
+            Адаптивное среднее
+          </button>
+        </div>
+
+        <div class="control-group">
+          <h3>Адаптивная пороговая обработка</h3>
+          <button class="btn" onclick="applyAdaptiveThreshold()">
+            Метод Бенсен
+          </button>
+        </div>
+      </section>
+    </main>
+
+    <div id="imageModal" class="modal">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <img class="modal-content" id="modalImage" />
+      <div id="caption"></div>
+    </div>
+
+    <script src="script.js"></script>
+  </body>
+</html>
