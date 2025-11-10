@@ -1,68 +1,553 @@
 <!DOCTYPE html>
 <html lang="ru">
-  <head>
+<head>
     <meta charset="UTF-8" />
     <title>Обработка изображений</title>
-    <link rel="stylesheet" href="styles.css" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
-      rel="stylesheet"
-    />
-  </head>
-  <body>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: "Roboto", sans-serif;
+            background-color: #f9f9f9;
+            color: #333;
+            line-height: 1.6;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+        }
+
+        header {
+            background-color: #fbcbff;
+            color: #fff;
+            padding: 20px 0;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        header h1 {
+            font-size: 2em;
+            font-weight: 500;
+        }
+
+        main {
+            flex: 1;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .upload-section {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .upload-section input[type="file"] {
+            padding: 10px;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            background-color: #fff;
+            cursor: pointer;
+            transition: border-color 0.3s, background-color 0.3s;
+        }
+
+        .upload-section input[type="file"]:hover {
+            border-color: #fbcbff;
+            background-color: #f0f8ff;
+        }
+
+        .canvas-section {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        .canvas-wrapper {
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            width: 100%;
+            max-width: 500px;
+            cursor: pointer;
+        }
+
+        .canvas-wrapper h3 {
+            margin-bottom: 10px;
+            font-size: 1.2em;
+            color: #fbcbff;
+        }
+
+        canvas {
+            width: 100%;
+            height: auto;
+            border-radius: 4px;
+        }
+
+        .controls-section {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls-section h2 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: #fdcdff;
+        }
+
+        .control-group {
+            margin-bottom: 30px;
+        }
+
+        .control-group h3 {
+            margin-bottom: 10px;
+            color: #555;
+        }
+
+        .btn {
+            display: inline-block;
+            margin: 5px;
+            padding: 10px 20px;
+            background-color: #fbcbff;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #fbcbff;
+            transform: translateY(-2px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        footer p {
+            font-size: 0.9em;
+        }
+
+        @media (max-width: 768px) {
+            .canvas-section {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .controls-section {
+                padding: 15px;
+            }
+
+            .btn {
+                width: 100%;
+                max-width: 300px;
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            padding-top: 60px;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0, 0, 0, 0.8);
+        }
+
+        .modal-content {
+            margin: auto;
+            display: block;
+            max-width: 90%;
+            max-height: 80%;
+            border-radius: 8px;
+        }
+
+        #caption {
+            margin: auto;
+            display: block;
+            width: 80%;
+            max-width: 700px;
+            text-align: center;
+            color: #ccc;
+            padding: 10px 0;
+        }
+
+        .close {
+            position: absolute;
+            top: 30px;
+            right: 35px;
+            color: #fff;
+            font-size: 40px;
+            font-weight: bold;
+            transition: color 0.3s;
+            cursor: pointer;
+        }
+
+        .close:hover,
+        .close:focus {
+            color: #bbb;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .canvas-wrapper:hover {
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+            transform: scale(1.02);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+</head>
+
+<body>
     <header>
-      <h1>Обработка изображений</h1>
+        <h1>Обработка изображений</h1>
     </header>
 
     <main>
-      <section class="upload-section">
-        <input type="file" id="upload" accept="image/*" />
-      </section>
+        <section class="upload-section">
+            <input type="file" id="upload" accept="image/*" />
+        </section>
 
-      <section class="canvas-section">
-        <div class="canvas-wrapper">
-          <h3>Оригинальное изображение</h3>
-          <canvas id="originalCanvas"></canvas>
-        </div>
-        <div class="canvas-wrapper">
-          <h3>Обработанное изображение</h3>
-          <canvas id="processedCanvas"></canvas>
-        </div>
-      </section>
+        <section class="canvas-section">
+            <div class="canvas-wrapper">
+                <h3>Оригинальное изображение</h3>
+                <canvas id="originalCanvas"></canvas>
+            </div>
+            <div class="canvas-wrapper">
+                <h3>Обработанное изображение</h3>
+                <canvas id="processedCanvas"></canvas>
+            </div>
+        </section>
 
-      <section id="controls" class="controls-section">
-        <h2>Выберите метод обработки:</h2>
+        <section id="controls" class="controls-section">
+            <h2>Выберите метод обработки:</h2>
 
-        <div class="control-group">
-          <h3>Низкочастотные фильтры</h3>
-          <button class="btn" onclick="applyLowPassFilter()">
-            Средний фильтр
-          </button>
-        </div>
+            <div class="control-group">
+                <h3>Низкочастотные фильтры</h3>
+                <button class="btn" onclick="applyLowPassFilter()">
+                    Средний фильтр
+                </button>
+            </div>
 
-        <div class="control-group">
-          <h3>Локальная пороговая обработка</h3>
-          <button class="btn" onclick="applyOtsuThreshold()">Метод Оцу</button>
-          <button class="btn" onclick="applyAdaptiveMeanThreshold()">
-            Адаптивное среднее
-          </button>
-        </div>
+            <div class="control-group">
+                <h3>Локальная пороговая обработка</h3>
+                <button class="btn" onclick="applyOtsuThreshold()">Метод Оцу</button>
+                <button class="btn" onclick="applyAdaptiveMeanThreshold()">
+                    Адаптивное среднее
+                </button>
+            </div>
 
-        <div class="control-group">
-          <h3>Адаптивная пороговая обработка</h3>
-          <button class="btn" onclick="applyAdaptiveThreshold()">
-            Метод Бенсен
-          </button>
-        </div>
-      </section>
+            <div class="control-group">
+                <h3>Адаптивная пороговая обработка</h3>
+                <button class="btn" onclick="applyAdaptiveThreshold()">
+                    Метод Бенсен
+                </button>
+            </div>
+        </section>
     </main>
 
     <div id="imageModal" class="modal">
-      <span class="close" onclick="closeModal()">&times;</span>
-      <img class="modal-content" id="modalImage" />
-      <div id="caption"></div>
+        <span class="close" onclick="closeModal()">&times;</span>
+        <img class="modal-content" id="modalImage" />
+        <div id="caption"></div>
     </div>
 
-    <script src="script.js"></script>
-  </body>
+    <script>
+        let originalImage = null;
+        let processedImage = null;
+
+        const upload = document.getElementById("upload");
+        const originalCanvas = document.getElementById("originalCanvas");
+        const processedCanvas = document.getElementById("processedCanvas");
+        const modal = document.getElementById("imageModal");
+        const modalImg = document.getElementById("modalImage");
+        const captionText = document.getElementById("caption");
+        const closeBtn = document.getElementsByClassName("close")[0];
+
+        upload.addEventListener("change", loadImage);
+
+        originalCanvas.addEventListener("click", function () {
+            if (!originalImage) return;
+            openModal(originalCanvas, "Оригинальное изображение");
+        });
+
+        processedCanvas.addEventListener("click", function () {
+            if (!processedImage) return;
+            openModal(processedCanvas, "Обработанное изображение");
+        });
+
+        function loadImage(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+            const img = new Image();
+            const reader = new FileReader();
+
+            reader.onload = function (event) {
+                img.onload = function () {
+                    originalCanvas.width = img.width;
+                    originalCanvas.height = img.height;
+                    processedCanvas.width = img.width;
+                    processedCanvas.height = img.height;
+
+                    const ctx = originalCanvas.getContext("2d");
+                    ctx.drawImage(img, 0, 0);
+                    originalImage = ctx.getImageData(0, 0, img.width, img.height);
+                    processedImage = ctx.getImageData(0, 0, img.width, img.height);
+                    updateProcessedCanvas();
+                };
+                img.src = event.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function updateProcessedCanvas() {
+            const ctx = processedCanvas.getContext("2d");
+            ctx.putImageData(processedImage, 0, 0);
+        }
+
+        function openModal(canvas, title) {
+            const dataURL = canvas.toDataURL();
+            modal.style.display = "block";
+            modalImg.src = dataURL;
+            captionText.innerHTML = title;
+        }
+
+        function closeModal() {
+            modal.style.display = "none";
+        }
+
+        window.onclick = function (event) {
+            if (event.target == modal) {
+                modal.style.display = "none";
+            }
+        };
+
+        function applyLowPassFilter() {
+            if (!originalImage) return;
+            const width = originalImage.width;
+            const height = originalImage.height;
+            const srcData = originalImage.data;
+            const dstData = new Uint8ClampedArray(srcData.length);
+
+            const kernel = [
+                [1 / 9, 1 / 9, 1 / 9],
+                [1 / 9, 1 / 9, 1 / 9],
+                [1 / 9, 1 / 9, 1 / 9],
+            ];
+
+            const kSize = 1;
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    let r = 0,
+                        g = 0,
+                        b = 0;
+                    for (let ky = -kSize; ky <= kSize; ky++) {
+                        for (let kx = -kSize; kx <= kSize; kx++) {
+                            const ny = y + ky;
+                            const nx = x + kx;
+                            if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                                const pos = (ny * width + nx) * 4;
+                                const weight = kernel[ky + kSize][kx + kSize];
+                                r += srcData[pos] * weight;
+                                g += srcData[pos + 1] * weight;
+                                b += srcData[pos + 2] * weight;
+                            }
+                        }
+                    }
+                    const idx = (y * width + x) * 4;
+                    dstData[idx] = r;
+                    dstData[idx + 1] = g;
+                    dstData[idx + 2] = b;
+                    dstData[idx + 3] = srcData[idx + 3];
+                }
+            }
+
+            processedImage.data.set(dstData);
+            updateProcessedCanvas();
+        }
+
+        function applyOtsuThreshold() {
+            if (!originalImage) return;
+            const width = originalImage.width;
+            const height = originalImage.height;
+            const srcData = originalImage.data;
+            const dstData = new Uint8ClampedArray(srcData.length);
+
+            const histogram = new Array(256).fill(0);
+            for (let i = 0; i < srcData.length; i += 4) {
+                const gray = rgbToGray(srcData[i], srcData[i + 1], srcData[i + 2]);
+                histogram[gray]++;
+            }
+
+            let total = width * height;
+            let sum = 0;
+            for (let t = 0; t < 256; t++) sum += t * histogram[t];
+
+            let sumB = 0;
+            let wB = 0;
+            let wF = 0;
+            let varMax = 0;
+            let threshold = 0;
+
+            for (let t = 0; t < 256; t++) {
+                wB += histogram[t];
+                if (wB === 0) continue;
+                wF = total - wB;
+                if (wF === 0) break;
+
+                sumB += t * histogram[t];
+                let mB = sumB / wB;
+                let mF = (sum - sumB) / wF;
+
+                let varBetween = wB * wF * (mB - mF) * (mB - mF);
+                if (varBetween > varMax) {
+                    varMax = varBetween;
+                    threshold = t;
+                }
+            }
+
+            for (let i = 0; i < srcData.length; i += 4) {
+                const gray = rgbToGray(srcData[i], srcData[i + 1], srcData[i + 2]);
+                const value = gray >= threshold ? 255 : 0;
+                dstData[i] = dstData[i + 1] = dstData[i + 2] = value;
+                dstData[i + 3] = srcData[i + 3];
+            }
+
+            processedImage.data.set(dstData);
+            updateProcessedCanvas();
+        }
+
+        function applyAdaptiveMeanThreshold() {
+            if (!originalImage) return;
+            const width = originalImage.width;
+            const height = originalImage.height;
+            const srcData = originalImage.data;
+            const dstData = new Uint8ClampedArray(srcData.length);
+
+            const kSize = 15;
+            const halfK = Math.floor(kSize / 2);
+
+            const integral = [];
+            for (let y = 0; y < height; y++) {
+                integral[y] = [];
+                for (let x = 0; x < width; x++) {
+                    const idx = (y * width + x) * 4;
+                    const gray = rgbToGray(srcData[idx], srcData[idx + 1], srcData[idx + 2]);
+                    const above = y > 0 ? integral[y - 1][x] : 0;
+                    const left = x > 0 ? integral[y][x - 1] : 0;
+                    const aboveLeft = y > 0 && x > 0 ? integral[y - 1][x - 1] : 0;
+                    integral[y][x] = gray + left + above - aboveLeft;
+                }
+            }
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    const x1 = Math.max(x - halfK, 0);
+                    const x2 = Math.min(x + halfK, width - 1);
+                    const y1 = Math.max(y - halfK, 0);
+                    const y2 = Math.min(y + halfK, height - 1);
+                    const count = (x2 - x1 + 1) * (y2 - y1 + 1);
+
+                    const sum =
+                        integral[y2][x2] -
+                        (y1 > 0 ? integral[y1 - 1][x2] : 0) -
+                        (x1 > 0 ? integral[y2][x1 - 1] : 0) +
+                        (y1 > 0 && x1 > 0 ? integral[y1 - 1][x1 - 1] : 0);
+                    const idx = (y * width + x) * 4;
+                    const gray = rgbToGray(srcData[idx], srcData[idx + 1], srcData[idx + 2]);
+                    const threshold = (sum / count) * 0.9; // Коэффициент 0.9 для небольшого сдвига
+
+                    const value = gray >= threshold ? 255 : 0;
+                    dstData[idx] = dstData[idx + 1] = dstData[idx + 2] = value;
+                    dstData[idx + 3] = srcData[idx + 3];
+                }
+            }
+
+            processedImage.data.set(dstData);
+            updateProcessedCanvas();
+        }
+
+        function applyAdaptiveThreshold() {
+            if (!originalImage) return;
+            const width = originalImage.width;
+            const height = originalImage.height;
+            const srcData = originalImage.data;
+            const dstData = new Uint8ClampedArray(srcData.length);
+
+            const kSize = 15;
+            const halfK = Math.floor(kSize / 2);
+            const contrastThreshold = 15;
+
+            for (let y = 0; y < height; y++) {
+                for (let x = 0; x < width; x++) {
+                    let sum = 0;
+                    let count = 0;
+                    let min = 255;
+                    let max = 0;
+
+                    for (let ky = -halfK; ky <= halfK; ky++) {
+                        for (let kx = -halfK; kx <= halfK; kx++) {
+                            const ny = y + ky;
+                            const nx = x + kx;
+                            if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
+                                const idx = (ny * width + nx) * 4;
+                                const gray = rgbToGray(
+                                    srcData[idx],
+                                    srcData[idx + 1],
+                                    srcData[idx + 2]
+                                );
+                                sum += gray;
+                                count++;
+                                if (gray < min) min = gray;
+                                if (gray > max) max = gray;
+                            }
+                        }
+                    }
+
+                    const mean = sum / count;
+                    const contrast = max - min;
+                    const idx = (y * width + x) * 4;
+                    if (contrast < contrastThreshold) {
+                        dstData[idx] = dstData[idx + 1] = dstData[idx + 2] = 255;
+                    } else {
+                        const gray = rgbToGray(
+                            srcData[idx],
+                            srcData[idx + 1],
+                            srcData[idx + 2]
+                        );
+                        const value = gray >= mean ? 255 : 0;
+                        dstData[idx] = dstData[idx + 1] = dstData[idx + 2] = value;
+                    }
+                    dstData[idx + 3] = srcData[idx + 3];
+                }
+            }
+
+            processedImage.data.set(dstData);
+            updateProcessedCanvas();
+        }
+
+        function rgbToGray(r, g, b) {
+            return Math.floor(0.299 * r + 0.587 * g + 0.114 * b);
+        }
+
+        function clamp(value) {
+            return Math.max(0, Math.min(255, value));
+        }
+    </script>
+</body>
 </html>
