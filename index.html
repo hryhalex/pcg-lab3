@@ -1,553 +1,343 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8" />
-    <title>Обработка изображений</title>
-    <style>
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: "Roboto", sans-serif;
-            background-color: #f9f9f9;
-            color: #333;
-            line-height: 1.6;
-            display: flex;
-            flex-direction: column;
-            min-height: 100vh;
-        }
-
-        header {
-            background-color: #fbcbff;
-            color: #fff;
-            padding: 20px 0;
-            text-align: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        header h1 {
-            font-size: 2em;
-            font-weight: 500;
-        }
-
-        main {
-            flex: 1;
-            padding: 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-        }
-
-        .upload-section {
-            text-align: center;
-            margin-bottom: 30px;
-        }
-
-        .upload-section input[type="file"] {
-            padding: 10px;
-            border: 2px dashed #ccc;
-            border-radius: 8px;
-            background-color: #fff;
-            cursor: pointer;
-            transition: border-color 0.3s, background-color 0.3s;
-        }
-
-        .upload-section input[type="file"]:hover {
-            border-color: #fbcbff;
-            background-color: #f0f8ff;
-        }
-
-        .canvas-section {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: center;
-            gap: 40px;
-            margin-bottom: 40px;
-        }
-
-        .canvas-wrapper {
-            background-color: #fff;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            text-align: center;
-            width: 100%;
-            max-width: 500px;
-            cursor: pointer;
-        }
-
-        .canvas-wrapper h3 {
-            margin-bottom: 10px;
-            font-size: 1.2em;
-            color: #fbcbff;
-        }
-
-        canvas {
-            width: 100%;
-            height: auto;
-            border-radius: 4px;
-        }
-
-        .controls-section {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .controls-section h2 {
-            text-align: center;
-            margin-bottom: 20px;
-            color: #fdcdff;
-        }
-
-        .control-group {
-            margin-bottom: 30px;
-        }
-
-        .control-group h3 {
-            margin-bottom: 10px;
-            color: #555;
-        }
-
-        .btn {
-            display: inline-block;
-            margin: 5px;
-            padding: 10px 20px;
-            background-color: #fbcbff;
-            color: #fff;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 0.95em;
-            transition: background-color 0.3s, transform 0.2s;
-        }
-
-        .btn:hover {
-            background-color: #fbcbff;
-            transform: translateY(-2px);
-        }
-
-        .btn:active {
-            transform: translateY(0);
-        }
-
-        footer p {
-            font-size: 0.9em;
-        }
-
-        @media (max-width: 768px) {
-            .canvas-section {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .controls-section {
-                padding: 15px;
-            }
-
-            .btn {
-                width: 100%;
-                max-width: 300px;
-            }
-        }
-
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            padding-top: 60px;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0, 0, 0, 0.8);
-        }
-
-        .modal-content {
-            margin: auto;
-            display: block;
-            max-width: 90%;
-            max-height: 80%;
-            border-radius: 8px;
-        }
-
-        #caption {
-            margin: auto;
-            display: block;
-            width: 80%;
-            max-width: 700px;
-            text-align: center;
-            color: #ccc;
-            padding: 10px 0;
-        }
-
-        .close {
-            position: absolute;
-            top: 30px;
-            right: 35px;
-            color: #fff;
-            font-size: 40px;
-            font-weight: bold;
-            transition: color 0.3s;
-            cursor: pointer;
-        }
-
-        .close:hover,
-        .close:focus {
-            color: #bbb;
-            text-decoration: none;
-            cursor: pointer;
-        }
-
-        .canvas-wrapper:hover {
-            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-            transform: scale(1.02);
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-    </style>
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Иллюстрация растровых алгоритмов</title>
+<script async src="https://docs.opencv.org/4.x/opencv.js" onload="onOpenCvReady();" type="text/javascript"></script>
+<style>
+  body {
+    margin: 0;
+    background: linear-gradient(135deg, #FADADD, #FFF0F5);
+    font-family: "Segoe UI", sans-serif;
+    color: #4B2E05;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  h1 {
+    margin: 20px 0 10px;
+    color: #C71585;
+    font-size: 30px;
+  }
+  .controls {
+    background: #fffafc;
+    padding: 15px 25px;
+    border-radius: 16px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 10px;
+  }
+  select, input {
+    border: 1px solid #C71585;
+    border-radius: 8px;
+    padding: 4px 8px;
+    font-size: 14px;
+  }
+  button {
+    background-color: #C71585;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    padding: 7px 14px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  button:hover {
+    background-color: #d050a5;
+    transform: scale(1.05);
+  }
+  button:disabled {
+    background-color: #e0a0c0;
+    cursor: wait;
+    transform: none;
+  }
+  canvas {
+    background-color: #FFF;
+    margin-top: 20px;
+    border: 2px solid #C71585;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  }
+  #time {
+    margin: 10px;
+    font-weight: bold;
+  }
+  .info {
+    background: #fff8f8;
+    border: 1px solid #f0b6cc;
+    border-radius: 12px;
+    padding: 12px 20px;
+    max-width: 800px;
+    line-height: 1.5;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+  }
+  .info h2 {
+    margin-top: 0;
+    color: #C71585;
+  }
+  .note {
+    margin: 20px;
+    font-size: 14px;
+    max-width: 700px;
+    color: #4B2E05;
+  }
+</style>
 </head>
-
 <body>
-    <header>
-        <h1>Обработка изображений</h1>
-    </header>
 
-    <main>
-        <section class="upload-section">
-            <input type="file" id="upload" accept="image/*" />
-        </section>
+<h1>Иллюстрация растровых алгоритмов</h1>
 
-        <section class="canvas-section">
-            <div class="canvas-wrapper">
-                <h3>Оригинальное изображение</h3>
-                <canvas id="originalCanvas"></canvas>
-            </div>
-            <div class="canvas-wrapper">
-                <h3>Обработанное изображение</h3>
-                <canvas id="processedCanvas"></canvas>
-            </div>
-        </section>
+<div class="controls">
+  <label>Алгоритм:</label>
+  <select id="algorithm">
+    <option value="step">Пошаговый (OpenCV Line)</option>
+    <option value="dda">ЦДА (OpenCV Line)</option>
+    <option value="bresenham">Брезенхем (OpenCV Line)</option>
+    <option value="circle">Брезенхем (OpenCV Circle)</option>
+    <option value="bezier">Кастла–Питвея (JS Math)</option>
+    <option value="wu">Сглаженная линия (OpenCV AA)</option>
+  </select>
+  <label>X₁: <input type="number" id="x1" value="-10"></label>
+  <label>Y₁: <input type="number" id="y1" value="-5"></label>
+  <label>X₂: <input type="number" id="x2" value="10"></label>
+  <label>Y₂: <input type="number" id="y2" value="8"></label>
+  <button id="btnDraw" onclick="draw()" disabled>Построить</button>
+  <button onclick="clearCanvas()">Очистить</button>
+</div>
 
-        <section id="controls" class="controls-section">
-            <h2>Выберите метод обработки:</h2>
+<div id="time">Среднее время выполнения: —</div>
 
-            <div class="control-group">
-                <h3>Низкочастотные фильтры</h3>
-                <button class="btn" onclick="applyLowPassFilter()">
-                    Средний фильтр
-                </button>
-            </div>
+<canvas id="canvas" width="800" height="800"></canvas>
 
-            <div class="control-group">
-                <h3>Локальная пороговая обработка</h3>
-                <button class="btn" onclick="applyOtsuThreshold()">Метод Оцу</button>
-                <button class="btn" onclick="applyAdaptiveMeanThreshold()">
-                    Адаптивное среднее
-                </button>
-            </div>
+<div class="info" id="desc"></div>
 
-            <div class="control-group">
-                <h3>Адаптивная пороговая обработка</h3>
-                <button class="btn" onclick="applyAdaptiveThreshold()">
-                    Метод Бенсен
-                </button>
-            </div>
-        </section>
-    </main>
+<div class="note">
+<b>Примечание:</b>  
+Используется библиотека <b>OpenCV.js</b> для растеризации примитивов на виртуальной матрице, после чего результат переносится на холст.
+</div>
 
-    <div id="imageModal" class="modal">
-        <span class="close" onclick="closeModal()">&times;</span>
-        <img class="modal-content" id="modalImage" />
-        <div id="caption"></div>
-    </div>
+<script>
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
+const size = 20;
+const midX = Math.floor(canvas.width / 2);
+const midY = Math.floor(canvas.height / 2);
+const gridW = canvas.width / size; 
+const gridH = canvas.height / size;
 
-    <script>
-        let originalImage = null;
-        let processedImage = null;
+let cvReady = false;
 
-        const upload = document.getElementById("upload");
-        const originalCanvas = document.getElementById("originalCanvas");
-        const processedCanvas = document.getElementById("processedCanvas");
-        const modal = document.getElementById("imageModal");
-        const modalImg = document.getElementById("modalImage");
-        const captionText = document.getElementById("caption");
-        const closeBtn = document.getElementsByClassName("close")[0];
+function onOpenCvReady() {
+  cvReady = true;
+  document.getElementById("btnDraw").disabled = false;
+}
 
-        upload.addEventListener("change", loadImage);
+function gridToCanvas(x, y) {
+  return { cx: midX + x * size, cy: midY - y * size };
+}
 
-        originalCanvas.addEventListener("click", function () {
-            if (!originalImage) return;
-            openModal(originalCanvas, "Оригинальное изображение");
-        });
+function drawGrid() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.strokeStyle = "#eee";
+  ctx.lineWidth = 1;
 
-        processedCanvas.addEventListener("click", function () {
-            if (!processedImage) return;
-            openModal(processedCanvas, "Обработанное изображение");
-        });
+  for (let x = midX % size; x <= canvas.width; x += size) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, canvas.height);
+    ctx.stroke();
+  }
+  for (let y = midY % size; y <= canvas.height; y += size) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(canvas.width, y);
+    ctx.stroke();
+  }
 
-        function loadImage(e) {
-            const file = e.target.files[0];
-            if (!file) return;
-            const img = new Image();
-            const reader = new FileReader();
+  ctx.strokeStyle = "#C71585";
+  ctx.lineWidth = 1.5;
+  ctx.beginPath();
+  ctx.moveTo(0, midY);
+  ctx.lineTo(canvas.width, midY);
+  ctx.moveTo(midX, 0);
+  ctx.lineTo(midX, canvas.height);
+  ctx.stroke();
 
-            reader.onload = function (event) {
-                img.onload = function () {
-                    originalCanvas.width = img.width;
-                    originalCanvas.height = img.height;
-                    processedCanvas.width = img.width;
-                    processedCanvas.height = img.height;
+  ctx.fillStyle = "#C71585";
+  ctx.font = "12px Segoe UI";
+  ctx.textAlign = "center";
+  ctx.textBaseline = "top";
 
-                    const ctx = originalCanvas.getContext("2d");
-                    ctx.drawImage(img, 0, 0);
-                    originalImage = ctx.getImageData(0, 0, img.width, img.height);
-                    processedImage = ctx.getImageData(0, 0, img.width, img.height);
-                    updateProcessedCanvas();
-                };
-                img.src = event.target.result;
-            };
-            reader.readAsDataURL(file);
-        }
+  for (let i = -20; i <= 20; i++) {
+    const { cx } = gridToCanvas(i, 0);
+    if (i !== 0) ctx.fillText(i, cx, midY + 4);
+  }
+  ctx.textAlign = "left";
+  ctx.textBaseline = "middle";
+  for (let j = -20; j <= 20; j++) {
+    const { cy } = gridToCanvas(0, j);
+    if (j !== 0) ctx.fillText(j, midX + 4, cy);
+  }
+}
 
-        function updateProcessedCanvas() {
-            const ctx = processedCanvas.getContext("2d");
-            ctx.putImageData(processedImage, 0, 0);
-        }
+function plot(x, y, color = "#C71585") {
+  const { cx, cy } = gridToCanvas(x, y);
+  ctx.fillStyle = color;
+  ctx.fillRect(cx - size / 2 + 1, cy - size / 2 + 1, size - 2, size - 2);
+}
 
-        function openModal(canvas, title) {
-            const dataURL = canvas.toDataURL();
-            modal.style.display = "block";
-            modalImg.src = dataURL;
-            captionText.innerHTML = title;
-        }
+function clearCanvas() {
+  drawGrid();
+}
 
-        function closeModal() {
-            modal.style.display = "none";
-        }
+function runOpenCV(drawCallback) {
+    if (!cvReady) return [];
 
-        window.onclick = function (event) {
-            if (event.target == modal) {
-                modal.style.display = "none";
-            }
-        };
+    let rows = gridH + 1; 
+    let cols = gridW + 1;
+    let mat = new cv.Mat.zeros(rows, cols, cv.CV_8UC1);
 
-        function applyLowPassFilter() {
-            if (!originalImage) return;
-            const width = originalImage.width;
-            const height = originalImage.height;
-            const srcData = originalImage.data;
-            const dstData = new Uint8ClampedArray(srcData.length);
+    drawCallback(mat);
 
-            const kernel = [
-                [1 / 9, 1 / 9, 1 / 9],
-                [1 / 9, 1 / 9, 1 / 9],
-                [1 / 9, 1 / 9, 1 / 9],
-            ];
+    const points = [];
+    let data = mat.data; 
 
-            const kSize = 1;
-
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    let r = 0,
-                        g = 0,
-                        b = 0;
-                    for (let ky = -kSize; ky <= kSize; ky++) {
-                        for (let kx = -kSize; kx <= kSize; kx++) {
-                            const ny = y + ky;
-                            const nx = x + kx;
-                            if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-                                const pos = (ny * width + nx) * 4;
-                                const weight = kernel[ky + kSize][kx + kSize];
-                                r += srcData[pos] * weight;
-                                g += srcData[pos + 1] * weight;
-                                b += srcData[pos + 2] * weight;
-                            }
-                        }
-                    }
-                    const idx = (y * width + x) * 4;
-                    dstData[idx] = r;
-                    dstData[idx + 1] = g;
-                    dstData[idx + 2] = b;
-                    dstData[idx + 3] = srcData[idx + 3];
+    for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+            let intensity = data[r * cols + c];
+            if (intensity > 0) {
+                let x = c - Math.floor(cols/2);
+                let y = Math.floor(rows/2) - r;
+                
+                if (intensity < 255) {
+                    let alpha = intensity / 255;
+                    points.push([x, y, `rgba(199,21,133,${alpha.toFixed(2)})`]);
+                } else {
+                    points.push([x, y]);
                 }
             }
-
-            processedImage.data.set(dstData);
-            updateProcessedCanvas();
         }
+    }
+    
+    mat.delete(); 
+    return points;
+}
 
-        function applyOtsuThreshold() {
-            if (!originalImage) return;
-            const width = originalImage.width;
-            const height = originalImage.height;
-            const srcData = originalImage.data;
-            const dstData = new Uint8ClampedArray(srcData.length);
+function toCvPt(x, y) {
+    const cx = Math.floor(gridW/2);
+    const cy = Math.floor(gridH/2);
+    return new cv.Point(x + cx, cy - y);
+}
 
-            const histogram = new Array(256).fill(0);
-            for (let i = 0; i < srcData.length; i += 4) {
-                const gray = rgbToGray(srcData[i], srcData[i + 1], srcData[i + 2]);
-                histogram[gray]++;
-            }
+function cvLine(x1, y1, x2, y2) {
+    return runOpenCV((mat) => {
+        let p1 = toCvPt(x1, y1);
+        let p2 = toCvPt(x2, y2);
+        let color = new cv.Scalar(255);
+        cv.line(mat, p1, p2, color, 1, cv.LINE_8);
+    });
+}
 
-            let total = width * height;
-            let sum = 0;
-            for (let t = 0; t < 256; t++) sum += t * histogram[t];
+function cvWuLine(x1, y1, x2, y2) {
+    return runOpenCV((mat) => {
+        let p1 = toCvPt(x1, y1);
+        let p2 = toCvPt(x2, y2);
+        let color = new cv.Scalar(255);
+        cv.line(mat, p1, p2, color, 1, cv.LINE_AA);
+    });
+}
 
-            let sumB = 0;
-            let wB = 0;
-            let wF = 0;
-            let varMax = 0;
-            let threshold = 0;
+function cvCircle(x0, y0, r) {
+    return runOpenCV((mat) => {
+        let center = toCvPt(x0, y0);
+        let color = new cv.Scalar(255);
+        cv.circle(mat, center, r, color, 1, cv.LINE_8);
+    });
+}
 
-            for (let t = 0; t < 256; t++) {
-                wB += histogram[t];
-                if (wB === 0) continue;
-                wF = total - wB;
-                if (wF === 0) break;
+function bezierCurve(x1, y1, x2, y2) {
+  const cx = (x1 + x2) / 2;
+  const cy = (y1 + y2) / 2 + Math.sign(y2 - y1) * Math.abs(x2 - x1)/2;
+  const points = [];
+  for (let t = 0; t <= 1; t += 0.02) {
+    const x = (1 - t) ** 2 * x1 + 2 * (1 - t) * t * cx + t ** 2 * x2;
+    const y = (1 - t) ** 2 * y1 + 2 * (1 - t) * t * cy + t ** 2 * y2;
+    points.push([Math.round(x), Math.round(y)]);
+  }
+  return points;
+}
 
-                sumB += t * histogram[t];
-                let mB = sumB / wB;
-                let mF = (sum - sumB) / wF;
+async function animatePoints(points) {
+  for (let i = 0; i < points.length; i++) {
+    const [x, y, color] = points[i];
+    plot(x, y, color || "#C71585");
+    await new Promise(r => setTimeout(r, 40));
+  }
+}
 
-                let varBetween = wB * wF * (mB - mF) * (mB - mF);
-                if (varBetween > varMax) {
-                    varMax = varBetween;
-                    threshold = t;
-                }
-            }
+async function draw() {
+  if (!cvReady) return;
 
-            for (let i = 0; i < srcData.length; i += 4) {
-                const gray = rgbToGray(srcData[i], srcData[i + 1], srcData[i + 2]);
-                const value = gray >= threshold ? 255 : 0;
-                dstData[i] = dstData[i + 1] = dstData[i + 2] = value;
-                dstData[i + 3] = srcData[i + 3];
-            }
+  clearCanvas();
+  const algo = document.getElementById("algorithm").value;
+  const x1 = parseFloat(document.getElementById("x1").value);
+  const y1 = parseFloat(document.getElementById("y1").value);
+  const x2 = parseFloat(document.getElementById("x2").value);
+  const y2 = parseFloat(document.getElementById("y2").value);
 
-            processedImage.data.set(dstData);
-            updateProcessedCanvas();
-        }
+  const runs = 10;
+  const t0 = performance.now();
+  
+  let points = [];
+  
+  for (let i = 0; i < runs; i++) {
+    if (algo === "step" || algo === "dda" || algo === "bresenham") {
+        points = cvLine(x1, y1, x2, y2);
+    }
+    else if (algo === "circle") points = cvCircle(x1, y1, 8);
+    else if (algo === "bezier") points = bezierCurve(x1, y1, x2, y2);
+    else if (algo === "wu") points = cvWuLine(x1, y1, x2, y2);
+  }
+  
+  const t1 = performance.now();
+  const avg = (t1 - t0) / runs;
+  clearCanvas();
 
-        function applyAdaptiveMeanThreshold() {
-            if (!originalImage) return;
-            const width = originalImage.width;
-            const height = originalImage.height;
-            const srcData = originalImage.data;
-            const dstData = new Uint8ClampedArray(srcData.length);
+  if (points.length > 0 && algo !== 'circle') {
+      points.sort((a, b) => {
+         let distA = (a[0]-x1)**2 + (a[1]-y1)**2;
+         let distB = (b[0]-x1)**2 + (b[1]-y1)**2;
+         return distA - distB;
+      });
+  }
 
-            const kSize = 15;
-            const halfK = Math.floor(kSize / 2);
+  animatePoints(points);
+  document.getElementById("time").innerText = 
+    `Среднее время выполнения (OpenCV): ${avg.toFixed(5)} мс`;
+  updateDescription(algo);
+}
 
-            const integral = [];
-            for (let y = 0; y < height; y++) {
-                integral[y] = [];
-                for (let x = 0; x < width; x++) {
-                    const idx = (y * width + x) * 4;
-                    const gray = rgbToGray(srcData[idx], srcData[idx + 1], srcData[idx + 2]);
-                    const above = y > 0 ? integral[y - 1][x] : 0;
-                    const left = x > 0 ? integral[y][x - 1] : 0;
-                    const aboveLeft = y > 0 && x > 0 ? integral[y - 1][x - 1] : 0;
-                    integral[y][x] = gray + left + above - aboveLeft;
-                }
-            }
+function updateDescription(algo) {
+  const desc = document.getElementById("desc");
+  const texts = {
+    step: "<h2>Пошаговый / ЦДА / Брезенхем</h2>Реализовано через <code>cv.line()</code> (тип LINE_8).",
+    dda: "<h2>ЦДА</h2>Реализовано через <code>cv.line()</code>.",
+    bresenham: "<h2>Брезенхем</h2>Стандартная функция <code>cv.line()</code> в OpenCV.",
+    circle: "<h2>Окружность</h2>Используется функция <code>cv.circle()</code>.",
+    bezier: "<h2>Кастла–Питвея (Безье)</h2>Нативная JS реализация (математическая формула).",
+    wu: "<h2>Сглаженная линия (Ву)</h2>Используется <code>cv.line()</code> с флагом <code>cv.LINE_AA</code>."
+  };
+  desc.innerHTML = texts[algo] || texts['step'];
+}
 
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    const x1 = Math.max(x - halfK, 0);
-                    const x2 = Math.min(x + halfK, width - 1);
-                    const y1 = Math.max(y - halfK, 0);
-                    const y2 = Math.min(y + halfK, height - 1);
-                    const count = (x2 - x1 + 1) * (y2 - y1 + 1);
+drawGrid();
+updateDescription("step");
+</script>
 
-                    const sum =
-                        integral[y2][x2] -
-                        (y1 > 0 ? integral[y1 - 1][x2] : 0) -
-                        (x1 > 0 ? integral[y2][x1 - 1] : 0) +
-                        (y1 > 0 && x1 > 0 ? integral[y1 - 1][x1 - 1] : 0);
-                    const idx = (y * width + x) * 4;
-                    const gray = rgbToGray(srcData[idx], srcData[idx + 1], srcData[idx + 2]);
-                    const threshold = (sum / count) * 0.9; // Коэффициент 0.9 для небольшого сдвига
-
-                    const value = gray >= threshold ? 255 : 0;
-                    dstData[idx] = dstData[idx + 1] = dstData[idx + 2] = value;
-                    dstData[idx + 3] = srcData[idx + 3];
-                }
-            }
-
-            processedImage.data.set(dstData);
-            updateProcessedCanvas();
-        }
-
-        function applyAdaptiveThreshold() {
-            if (!originalImage) return;
-            const width = originalImage.width;
-            const height = originalImage.height;
-            const srcData = originalImage.data;
-            const dstData = new Uint8ClampedArray(srcData.length);
-
-            const kSize = 15;
-            const halfK = Math.floor(kSize / 2);
-            const contrastThreshold = 15;
-
-            for (let y = 0; y < height; y++) {
-                for (let x = 0; x < width; x++) {
-                    let sum = 0;
-                    let count = 0;
-                    let min = 255;
-                    let max = 0;
-
-                    for (let ky = -halfK; ky <= halfK; ky++) {
-                        for (let kx = -halfK; kx <= halfK; kx++) {
-                            const ny = y + ky;
-                            const nx = x + kx;
-                            if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
-                                const idx = (ny * width + nx) * 4;
-                                const gray = rgbToGray(
-                                    srcData[idx],
-                                    srcData[idx + 1],
-                                    srcData[idx + 2]
-                                );
-                                sum += gray;
-                                count++;
-                                if (gray < min) min = gray;
-                                if (gray > max) max = gray;
-                            }
-                        }
-                    }
-
-                    const mean = sum / count;
-                    const contrast = max - min;
-                    const idx = (y * width + x) * 4;
-                    if (contrast < contrastThreshold) {
-                        dstData[idx] = dstData[idx + 1] = dstData[idx + 2] = 255;
-                    } else {
-                        const gray = rgbToGray(
-                            srcData[idx],
-                            srcData[idx + 1],
-                            srcData[idx + 2]
-                        );
-                        const value = gray >= mean ? 255 : 0;
-                        dstData[idx] = dstData[idx + 1] = dstData[idx + 2] = value;
-                    }
-                    dstData[idx + 3] = srcData[idx + 3];
-                }
-            }
-
-            processedImage.data.set(dstData);
-            updateProcessedCanvas();
-        }
-
-        function rgbToGray(r, g, b) {
-            return Math.floor(0.299 * r + 0.587 * g + 0.114 * b);
-        }
-
-        function clamp(value) {
-            return Math.max(0, Math.min(255, value));
-        }
-    </script>
 </body>
 </html>
